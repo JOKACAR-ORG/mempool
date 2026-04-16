@@ -1,0 +1,2 @@
+    - mapfile -t KEYS < contrib/verify-commits/trusted-keys
+    - gpg --keyserver hkps://keys.openpgp.org --recv-keys "${KEYS[@]}"
