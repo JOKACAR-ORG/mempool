@@ -1,4 +1,4 @@
-BASE_HEIGHT=$(curl -sk https://node202.tk7.mempool.space/api/v1/blocks/tip/height)
+ BASE_HEIGHT=$(curl -sk https://node202.tk7.mempool.space/api/v1/blocks/tip/height)
 IN_SYNC=true
 echo "Base height (node202.tk7): $BASE_HEIGHT"
 
