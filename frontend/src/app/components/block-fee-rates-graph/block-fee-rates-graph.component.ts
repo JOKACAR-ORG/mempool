@@ -26,6 +26,7 @@ import { ActivatedRoute, Router } from '@angular/router';
       z-index: 99;
     }
   `],
+  standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BlockFeeRatesGraphComponent implements OnInit {
@@ -155,7 +156,7 @@ export class BlockFeeRatesGraphComponent implements OnInit {
                     name: percentile,
                     inactiveColor: 'rgb(110, 112, 121)',
                     textStyle: {
-                      color: 'white',
+                      color: 'var(--fg)',
                     },
                     icon: 'roundRect',
                     enabled: false,
@@ -164,7 +165,7 @@ export class BlockFeeRatesGraphComponent implements OnInit {
                 }
 
                 if (this.widget) {
-                  let maResolution = 30;
+                  const maResolution = 30;
                   const medianMa = [];
                   for (let i = maResolution - 1; i < seriesData['Median'].length; ++i) {
                     let avg = 0;

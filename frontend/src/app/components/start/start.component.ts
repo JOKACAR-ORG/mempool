@@ -4,12 +4,13 @@ import { MarkBlockState, StateService } from '@app/services/state.service';
 import { specialBlocks } from '@app/app.constants';
 import { BlockExtended } from '@interfaces/node-api.interface';
 import { Router, ActivatedRoute } from '@angular/router';
-import { handleDemoRedirect } from '../../shared/common.utils';
+import { handleDemoRedirect } from '@app/shared/common.utils';
 
 @Component({
   selector: 'app-start',
   templateUrl: './start.component.html',
   styleUrls: ['./start.component.scss'],
+  standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StartComponent implements OnInit, AfterViewChecked, OnDestroy {
@@ -164,7 +165,7 @@ export class StartComponent implements OnInit, AfterViewChecked, OnDestroy {
       if (reset) {
         this.resetScroll();
         this.stateService.resetScroll$.next(false);
-      } 
+      }
     });
 
   }
@@ -310,7 +311,7 @@ export class StartComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   updateVelocity(x: number) {
     const now = performance.now();
-    let dt = now - this.lastUpdate;
+    const dt = now - this.lastUpdate;
     if (dt > 0) {
       this.lastUpdate = now;
       const velocity = (x - this.lastMouseX) / dt;

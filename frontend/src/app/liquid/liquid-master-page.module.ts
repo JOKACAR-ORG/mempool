@@ -9,9 +9,10 @@ import { LiquidMasterPageComponent } from '@components/liquid-master-page/liquid
 import { StartComponent } from '@components/start/start.component';
 import { PushTransactionComponent } from '@components/push-transaction/push-transaction.component';
 import { BlocksList } from '@components/blocks-list/blocks-list.component';
+import { RecentTransactionsList } from '@components/recent-transactions-list/recent-transactions-list.component';
 import { AssetGroupComponent } from '@components/assets/asset-group/asset-group.component';
 import { AssetsComponent } from '@components/assets/assets.component';
-import { AssetsFeaturedComponent } from '@components/assets/assets-featured/assets-featured.component'
+import { AssetsFeaturedComponent } from '@components/assets/assets-featured/assets-featured.component';
 import { AssetComponent } from '@components/asset/asset.component';
 import { AssetsNavComponent } from '@components/assets/assets-nav/assets-nav.component';
 import { RecentPegsListComponent } from '@components/liquid-reserves-audit/recent-pegs-list/recent-pegs-list.component';
@@ -41,6 +42,10 @@ const routes: Routes = [
       {
         path: 'blocks',
         redirectTo: 'blocks/1',
+      },
+      {
+        path: 'txs',
+        component: RecentTransactionsList,
       },
       {
         path: 'terms-of-service',

@@ -11,6 +11,7 @@ import { StateService } from '@app/services/state.service';
   selector: 'app-node-fee-chart',
   templateUrl: './node-fee-chart.component.html',
   styleUrls: ['./node-fee-chart.component.scss'],
+  standalone: false,
   styles: [`
     .loadingGraphs {
       position: absolute;
@@ -179,7 +180,7 @@ export class NodeFeeChartComponent implements OnInit {
             name: $localize`Outgoing Fees`,
             inactiveColor: 'rgb(110, 112, 121)',
             textStyle: {
-              color: 'white',
+              color: 'var(--fg)',
             },
             icon: 'roundRect',
           },
@@ -187,7 +188,7 @@ export class NodeFeeChartComponent implements OnInit {
             name: $localize`Incoming Fees`,
             inactiveColor: 'rgb(110, 112, 121)',
             textStyle: {
-              color: 'white',
+              color: 'var(--fg)',
             },
             icon: 'roundRect',
           },

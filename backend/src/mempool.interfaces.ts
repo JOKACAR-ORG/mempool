@@ -337,6 +337,7 @@ export interface BlockExtension {
 export interface BlockExtended extends IEsploraApi.Block {
   extras: BlockExtension;
   canonical?: string;
+  indexVersion?: number;
 }
 
 export interface BlockSummary {
@@ -406,6 +407,7 @@ export interface Statistic {
   fee_data: string;
   min_fee: number;
 
+  vsize_0: number;
   vsize_1: number;
   vsize_2: number;
   vsize_3: number;
@@ -502,7 +504,34 @@ export interface IBackendInfo {
   gitCommit: string;
   version: string;
   lightning: boolean;
+  coreVersion: string;
+  osVersion: string;
   backend: 'esplora' | 'electrum' | 'none';
+}
+
+export interface INetworkInfo {
+    version: number;
+    subversion: string;
+    protocolversion: number;
+    localservices: string;
+    localrelay: boolean;
+    timeoffset: number;
+    networkactive: boolean;
+    networks: {
+      name: string;
+      limited: boolean;
+      reachable: boolean;
+      proxy: string;
+      proxy_randomize_credentials: boolean;
+    }[];
+    relayfee: number;
+    incrementalfee: number;
+    localaddresses: {
+      address: string;
+      port: number;
+      score: number;
+    }[];
+    warnings: string;
 }
 
 export interface IDifficultyAdjustment {

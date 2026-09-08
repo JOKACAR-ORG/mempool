@@ -25,6 +25,7 @@ import { StateService } from '@app/services/state.service';
       z-index: 99;
     }
   `],
+  standalone: false,
 })
 export class LightningStatisticsChartComponent implements OnInit, OnChanges {
   @Input() height: number = 150;
@@ -120,7 +121,7 @@ export class LightningStatisticsChartComponent implements OnInit, OnChanges {
           color: 'grey',
           fontSize: 15
         },
-        text: $localize`Indexing in progress`,
+        text: $localize`:@@af1176facd00a0580509fb2900ab0cf7f9b39ae7:Indexing in progress`,
         left: 'center',
         top: 'center'
       };
@@ -205,7 +206,7 @@ export class LightningStatisticsChartComponent implements OnInit, OnChanges {
             name: $localize`:@@807cf11e6ac1cde912496f764c176bdfdd6b7e19:Channels`,
             inactiveColor: 'rgb(110, 112, 121)',
             textStyle: {
-              color: 'white',
+              color: 'var(--fg)',
             },
             icon: 'roundRect',
           },
@@ -213,7 +214,7 @@ export class LightningStatisticsChartComponent implements OnInit, OnChanges {
             name: $localize`:@@ce9dfdc6dccb28dc75a78c704e09dc18fb02dcfa:Capacity`,
             inactiveColor: 'rgb(110, 112, 121)',
             textStyle: {
-              color: 'white',
+              color: 'var(--fg)',
             },
             icon: 'roundRect',
           },

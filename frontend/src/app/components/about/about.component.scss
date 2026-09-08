@@ -57,7 +57,8 @@
   .alliances,
   .enterprise-sponsor,
   .community-integrations-sponsor,
-  .maintainers {
+  .maintainers,
+  .managers {
     margin-top: 30px;
     margin-bottom: 68px;
     scroll-margin: 30px;
@@ -67,7 +68,8 @@
     }
   }
 
-  .maintainers {
+  .maintainers,
+  .managers {
     margin-bottom: 50px;
   }
 
@@ -145,6 +147,7 @@
   .community-integrations-sponsor,
   .maintainers {
     scroll-margin: 30px;
+    scroll-margin-top: 65px;
     .wrapper {
       display: inline-block;
       a {
@@ -196,7 +199,7 @@
     margin: auto;
     line-height: 1.8;
     font-size: 87.5%;
-    color: #e83e8c;
+    color: var(--pink);
     word-wrap: break-word;
     font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
     ul {
@@ -259,11 +262,17 @@
   height: 64px;
 }
 
+.wiz-logo {
+  width: 260px;
+  max-width: 90vw;
+  margin: auto;
+}
+
 .enterprise-sponsor {
   .wrapper {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    max-width: 850px;
+    max-width: 1050px;
   }
 }

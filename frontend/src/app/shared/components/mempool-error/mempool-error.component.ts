@@ -21,7 +21,7 @@ export const MempoolErrors = {
   'recommended_fees_not_available': `Recommended fees are not available right now.`,
   'too_many_relatives': `This transaction has too many relatives.`,
   'txid_not_in_mempool': `This transaction is not in the mempool.`,
-  'waitlisted': `You are currently on the wait list. You will get notified once you are granted access.`,  
+  'waitlisted': `You are currently on the wait list. You will get notified once you are granted access.`,
   'not_whitelisted_by_any_pool': `You are not whitelisted by any mining pool`,
   'unauthorized': `You are not authorized to do this`,
   'faucet_too_soon': `You cannot request any more coins right now. Try again later.`,
@@ -35,6 +35,7 @@ export const MempoolErrors = {
   'payment_method_not_allowed_out_of_bound': `You are not allowed to use this payment method with this amount`,
   'invalid_credentials': `Invalid credentials`,
   'forbidden': `You are not allowed to do this.`,
+  'unable_to_generate_unique_partner_code': `Unable to generate new partner code`
 } as { [error: string]: string };
 
 export function isMempoolError(error: string) {
@@ -43,7 +44,8 @@ export function isMempoolError(error: string) {
 
 @Component({
   selector: 'app-mempool-error',
-  templateUrl: './mempool-error.component.html'
+  templateUrl: './mempool-error.component.html',
+  standalone: false,
 })
 export class MempoolErrorComponent implements OnInit {
   @ViewChild('lowBalance', { static: true }) lowBalance!: TemplateRef<any>;

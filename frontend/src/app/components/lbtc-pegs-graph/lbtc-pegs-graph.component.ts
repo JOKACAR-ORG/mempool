@@ -3,7 +3,7 @@ import { formatDate, formatNumber } from '@angular/common';
 import { EChartsOption } from '@app/graphs/echarts';
 import { StateService } from '@app/services/state.service';
 import { map, Subscription, switchMap } from 'rxjs';
-import { PriceService } from '../../services/price.service';
+import { PriceService } from '@app/services/price.service';
 import { AmountShortenerPipe } from '@app/shared/pipes/amount-shortener.pipe';
 
 @Component({
@@ -13,21 +13,32 @@ import { AmountShortenerPipe } from '@app/shared/pipes/amount-shortener.pipe';
   .loadingGraphs {
       position: absolute;
       top: 50%;
-      left: calc(50% - 16px);
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      text-align: center;
       z-index: 99;
+
+      .audit-in-progress-text {
+        color: var(--transparent-fg);
+        font-size: 14px;
+        font-weight: 500;
+      } 
     }
   `],
   templateUrl: './lbtc-pegs-graph.component.html',
+  standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LbtcPegsGraphComponent implements OnInit, OnChanges {
   @Input() data: any;
   @Input() height: number | string = '360';
+  @Input() auditInProgress = false;
   pegsChartOptions: EChartsOption;
   subscription: Subscription;
 
   right: number | string = '5';
-  top: number | string = '20';
+  top: number | string = '32';
   left: number | string = '60';
   template: ('widget' | 'advanced') = 'widget';
   isLoading = true;
@@ -39,7 +50,7 @@ export class LbtcPegsGraphComponent implements OnInit, OnChanges {
   adjustedLeft: number;
   adjustedRight: number;
   selected = {
-    'L-BTC': true,
+    'LBTC': true,
     'BTC': true,
     'USD': false,
   };
@@ -116,12 +127,13 @@ export class LbtcPegsGraphComponent implements OnInit, OnChanges {
         }
       }],
       legend: {
+        top: -5,
         data: [
           {
-            name: 'L-BTC',
+            name: 'LBTC',
             inactiveColor: 'var(--grey)',
             textStyle: {
-              color: 'white',
+              color: 'var(--fg)',
             },
             icon: 'roundRect',
           },
@@ -129,7 +141,7 @@ export class LbtcPegsGraphComponent implements OnInit, OnChanges {
             name: 'BTC',
             inactiveColor: 'var(--grey)',
             textStyle: {
-              color: 'white',
+              color: 'var(--fg)',
             },
             icon: 'roundRect',
           },
@@ -137,7 +149,7 @@ export class LbtcPegsGraphComponent implements OnInit, OnChanges {
             name: 'USD',
             inactiveColor: 'var(--grey)',
             textStyle: {
-              color: 'white',
+              color: 'var(--fg)',
             },
             icon: 'roundRect',
           }
@@ -217,7 +229,7 @@ export class LbtcPegsGraphComponent implements OnInit, OnChanges {
       series: [
         {
           data: pegSeries,
-          name: 'L-BTC',
+          name: 'LBTC',
           yAxisIndex: 0,
           color: '#116761',
           type: 'line',
@@ -266,23 +278,27 @@ export class LbtcPegsGraphComponent implements OnInit, OnChanges {
   onLegendSelectChanged(e) {
     this.selected = e.selected;
     this.adjustedRight = this.selected['USD'] ? +this.right + 40 : +this.right;
-    this.adjustedLeft = this.selected['L-BTC'] || this.selected['BTC'] ? +this.left : +this.left - 40;
+    this.adjustedLeft = this.selected['LBTC'] || this.selected['BTC'] ? +this.left : +this.left - 40;
 
     this.pegsChartOptions = {
       ...this.pegsChartOptions,
       grid: {
-        ...this.pegsChartOptions.grid,
+        ...(Array.isArray(this.pegsChartOptions?.grid)
+          ? (this.pegsChartOptions.grid[0] ?? {})
+          : (this.pegsChartOptions?.grid ?? {})) as Record<string, any>,
         right: this.adjustedRight,
         left: this.adjustedLeft,
       },
       legend: {
-        ...this.pegsChartOptions.legend,
+        ...(Array.isArray(this.pegsChartOptions?.legend)
+          ? (this.pegsChartOptions.legend[0] ?? {})
+          : (this.pegsChartOptions?.legend ?? {})) as Record<string, any>,
         selected: this.selected,
       },
     };
   }
 
-  onChartInit(ec) {
+  onChartInit(ec: any): void {
     this.chartInstance = ec;
     this.chartInstance.on('legendselectchanged', this.onLegendSelectChanged.bind(this));
   }

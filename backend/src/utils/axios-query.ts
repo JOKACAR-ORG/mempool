@@ -5,6 +5,7 @@ import config from '../config';
 import logger from '../logger';
 import * as https from 'https';
 
+/** @asyncUnsafe */
 export async function query(path, throwOnFail: boolean = false): Promise<object | undefined> {
  type axiosOptions = {
    headers: {
@@ -18,7 +19,7 @@ export async function query(path, throwOnFail: boolean = false): Promise<object 
    headers: {
      'User-Agent': (config.MEMPOOL.USER_AGENT === 'mempool') ? `mempool/v${backendInfo.getBackendInfo().version}` : `${config.MEMPOOL.USER_AGENT}`
    },
-   timeout: config.SOCKS5PROXY.ENABLED ? 30000 : 10000
+   timeout: config.SOCKS5PROXY.ENABLED ? 30000 : 20000
  };
  let retry = 0;
  let lastError: any = null;

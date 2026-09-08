@@ -7,10 +7,14 @@ on:
         description: 'Image Version'
         required: false
         default: 'latest'
-        type: string 
+        type: string
+
+permissions:
+  contents: read
+
 jobs:
   print-images-sha:
-    runs-on: ubuntu-latest
+    runs-on: mempool-ci
     name: Print digest for images
     steps:
       - name: Checkout

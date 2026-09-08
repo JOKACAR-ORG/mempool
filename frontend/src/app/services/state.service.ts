@@ -3,7 +3,7 @@ import { ReplaySubject, BehaviorSubject, Subject, fromEvent, Observable } from '
 import { Transaction } from '@interfaces/electrs.interface';
 import { AccelerationDelta, HealthCheckHost, IBackendInfo, MempoolBlock, MempoolBlockUpdate, MempoolInfo, Recommendedfees, ReplacedTransaction, ReplacementInfo, StratumJob, isMempoolState } from '@interfaces/websocket.interface';
 import { Acceleration, AccelerationPosition, BlockExtended, CpfpInfo, DifficultyAdjustment, MempoolPosition, OptimizedMempoolStats, RbfTree, TransactionStripped } from '@interfaces/node-api.interface';
-import { Router, NavigationStart } from '@angular/router';
+import { Router, NavigationStart, NavigationEnd } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { filter, map, scan, share, shareReplay } from 'rxjs/operators';
 import { StorageService } from '@app/services/storage.service';
@@ -32,6 +32,7 @@ export interface Customization {
     header_img?: string;
     footer_img?: string;
     rounded_corner: boolean;
+    cobranded?: boolean;
   },
   dashboard: {
     widgets: {
@@ -49,6 +50,7 @@ export interface Env {
   TESTNET_ENABLED: boolean;
   TESTNET4_ENABLED: boolean;
   SIGNET_ENABLED: boolean;
+  REGTEST_ENABLED: boolean;
   LIQUID_ENABLED: boolean;
   LIQUID_TESTNET_ENABLED: boolean;
   ITEMS_PER_PAGE: number;
@@ -72,10 +74,12 @@ export interface Env {
   TESTNET_BLOCK_AUDIT_START_HEIGHT: number;
   TESTNET4_BLOCK_AUDIT_START_HEIGHT: number;
   SIGNET_BLOCK_AUDIT_START_HEIGHT: number;
+  REGTEST_BLOCK_AUDIT_START_HEIGHT: number;
   MAINNET_TX_FIRST_SEEN_START_HEIGHT: number;
   TESTNET_TX_FIRST_SEEN_START_HEIGHT: number;
   TESTNET4_TX_FIRST_SEEN_START_HEIGHT: number;
   SIGNET_TX_FIRST_SEEN_START_HEIGHT: number;
+  REGTEST_TX_FIRST_SEEN_START_HEIGHT: number;
   HISTORICAL_PRICE: boolean;
   ACCELERATOR: boolean;
   ACCELERATOR_BUTTON: boolean;
@@ -85,6 +89,7 @@ export interface Env {
   PACKAGE_JSON_VERSION_MEMPOOL_SPACE?: string;
   STRATUM_ENABLED: boolean;
   SERVICES_API?: string;
+  TWIDGET_API?: string;
   customize?: Customization;
   PROD_DOMAINS: string[];
 }
@@ -94,6 +99,7 @@ const defaultEnv: Env = {
   'TESTNET_ENABLED': false,
   'TESTNET4_ENABLED': false,
   'SIGNET_ENABLED': false,
+  'REGTEST_ENABLED': false,
   'LIQUID_ENABLED': false,
   'LIQUID_TESTNET_ENABLED': false,
   'BASE_MODULE': 'mempool',
@@ -117,10 +123,12 @@ const defaultEnv: Env = {
   'TESTNET_BLOCK_AUDIT_START_HEIGHT': 0,
   'TESTNET4_BLOCK_AUDIT_START_HEIGHT': 0,
   'SIGNET_BLOCK_AUDIT_START_HEIGHT': 0,
+  'REGTEST_BLOCK_AUDIT_START_HEIGHT': 0,
   'MAINNET_TX_FIRST_SEEN_START_HEIGHT': 0,
   'TESTNET_TX_FIRST_SEEN_START_HEIGHT': 0,
   'TESTNET4_TX_FIRST_SEEN_START_HEIGHT': 0,
   'SIGNET_TX_FIRST_SEEN_START_HEIGHT': 0,
+  'REGTEST_TX_FIRST_SEEN_START_HEIGHT': 0,
   'HISTORICAL_PRICE': true,
   'ACCELERATOR': false,
   'ACCELERATOR_BUTTON': true,
@@ -128,6 +136,7 @@ const defaultEnv: Env = {
   'ADDITIONAL_CURRENCIES': false,
   'STRATUM_ENABLED': false,
   'SERVICES_API': 'https://mempool.space/api/v1/services',
+  'TWIDGET_API': 'https://mempool.ninja',
   'PROD_DOMAINS': [],
 };
 
@@ -138,6 +147,7 @@ export class StateService {
   referrer: string = '';
   isBrowser: boolean = isPlatformBrowser(this.platformId);
   isMempoolSpaceBuild = window['isMempoolSpaceBuild'] ?? false;
+  isProdDomain: boolean;
   backend: 'esplora' | 'electrum' | 'none' = 'esplora';
   network = '';
   lightningNetworks = ['', 'mainnet', 'bitcoin', 'testnet', 'signet'];
@@ -250,10 +260,15 @@ export class StateService {
       this.isTabHidden$ = new BehaviorSubject(false);
     }
 
+    this.isProdDomain = this.testIsProdDomain(this.env.PROD_DOMAINS);
+
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
         this.setNetworkBasedonUrl(event.url);
         this.setLightningBasedonUrl(event.url);
+      } else if (event instanceof NavigationEnd) {
+        this.setNetworkBasedonUrl(event.urlAfterRedirects);
+        this.setLightningBasedonUrl(event.urlAfterRedirects);
       }
     });
 
@@ -364,7 +379,7 @@ export class StateService {
     this.hideAudit.subscribe((hide) => {
       this.storageService.setValue('audit-preference', hide ? 'hide' : 'show');
     });
-    
+
     const fiatPreference = this.storageService.getValue('fiat-preference');
     this.fiatCurrency$ = new BehaviorSubject<string>(fiatPreference || 'USD');
 
@@ -395,7 +410,7 @@ export class StateService {
     // (?:preview\/)?                               optional "preview" prefix (non-capturing)
     // (testnet|signet)/                            network string (captured as networkMatches[1])
     // ($|\/)                                       network string must end or end with a slash
-    let networkMatches: object = url.match(/^\/(?:[a-z]{2}(?:-[A-Z]{2})?\/)?(?:preview\/)?(testnet4?|signet)($|\/)/);
+    let networkMatches: object = url.match(/^\/(?:[a-z]{2}(?:-[A-Z]{2})?\/)?(?:preview\/)?(testnet4?|signet|regtest)($|\/)/);
 
     if (!networkMatches && this.env.ROOT_NETWORK) {
       networkMatches = { 1: this.env.ROOT_NETWORK };
@@ -425,6 +440,12 @@ export class StateService {
           this.networkChanged$.next('testnet4');
         }
         return;
+      case 'regtest':
+        if (this.network !== 'regtest') {
+          this.network = 'regtest';
+          this.networkChanged$.next('regtest');
+        }
+        return;
       default:
         if (this.env.BASE_MODULE !== 'mempool') {
           if (this.network !== this.env.BASE_MODULE) {
@@ -450,7 +471,18 @@ export class StateService {
   networkSupportsLightning() {
     return this.env.LIGHTNING && this.lightningNetworks.includes(this.network);
   }
-
+  get networkDisplayName(): string {
+    const labels: Record<string, string> = {
+      '': 'Mainnet',
+      'signet': 'Signet',
+      'testnet': 'Testnet3',
+      'testnet4': 'Testnet4',
+      'regtest': 'Regtest',
+      'liquid': 'Liquid',
+      'liquidtestnet': 'Liquid Testnet',
+    };
+    return labels[this.network] ?? this.network;
+  }
   getHiddenProp(){
     const prefixes = ['webkit', 'moz', 'ms', 'o'];
     if ('hidden' in document) { return 'hidden'; }
@@ -481,9 +513,8 @@ export class StateService {
   }
 
   isAnyTestnet(): boolean {
-    return ['testnet', 'testnet4', 'signet', 'liquidtestnet'].includes(this.network);
+    return ['testnet', 'testnet4', 'signet', 'regtest', 'liquidtestnet'].includes(this.network);
   }
-
   resetChainTip() {
     this.latestBlockHeight = -1;
     this.chainTip$.next(-1);
@@ -510,6 +541,12 @@ export class StateService {
   focusSearchInputDesktop() {
     if (!hasTouchScreen()) {
       this.searchFocus$.next(true);
-    }    
+    }
+  }
+  private testIsProdDomain(prodDomains: string[]): boolean {
+    const hostname = document.location.hostname;
+    return prodDomains.some(domain =>
+      hostname === domain || hostname.endsWith('.' + domain)
+    );
   }
 }

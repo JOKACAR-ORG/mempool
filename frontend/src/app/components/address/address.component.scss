@@ -2,7 +2,7 @@
   position: absolute;
   top: 30px;
   right: 0px;
-  border: solid 10px var(--active-bg);
+  border: solid 10px var(--secondary);
   border-radius: 5px;
   background-color: #fff;
   padding: 10px;
@@ -121,4 +121,15 @@ h1 {
 
 .inactive {
   color: var(--transparent-fg);
+}
+
+.taproot-psbt-btn:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+.taproot-psbt-btn {
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: 0.8rem;
 }

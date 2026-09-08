@@ -1,11 +1,13 @@
 import { Component, Input, ChangeDetectionStrategy, SecurityContext, SimpleChanges, OnChanges } from '@angular/core';
 import { LanguageService } from '@app/services/language.service';
+import { StateService } from '@app/services/state.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-twitter-widget',
   templateUrl: './twitter-widget.component.html',
   styleUrls: ['./twitter-widget.component.scss'],
+  standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TwitterWidgetComponent implements OnChanges {
@@ -20,6 +22,7 @@ export class TwitterWidgetComponent implements OnChanges {
   iframeSrc: SafeResourceUrl;
 
   constructor(
+    private stateService: StateService,
     private languageService: LanguageService,
     public sanitizer: DomSanitizer,
   ) {
@@ -37,7 +40,7 @@ export class TwitterWidgetComponent implements OnChanges {
     if (!this.handle) {
       return;
     }
-    let url = `/api/v1/services/x/${this.handle}`;
+    const url = `${this.stateService.env.TWIDGET_API}/api/v1/social/x/${this.handle}`;
     this.iframeSrc = this.sanitizer.bypassSecurityTrustResourceUrl(this.sanitizer.sanitize(SecurityContext.URL, url));
   }
 

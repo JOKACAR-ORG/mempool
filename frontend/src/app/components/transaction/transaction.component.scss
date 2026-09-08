@@ -294,14 +294,6 @@
   width: 2.7em;
 }
 
-.pool-logo {
-  width: 15px;
-  height: 15px;
-  position: relative;
-  top: -1px;
-  margin-right: 2px;
-}
-
 .oobFees {
   color: #905cf4;
 }
@@ -309,4 +301,27 @@
 .disabled {
   opacity: 0.5;
   pointer-events: none;
+}
+
+.anchor {
+  scroll-margin-top: 105px;
+  @media (min-width: 564px) {
+    scroll-margin-top: 65px;
+  }
+}
+
+.duplicate-tx-alert {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-left: 3px solid var(--info);
+  margin-bottom: 1.5rem;
+
+  .icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--info);
+  }
 }

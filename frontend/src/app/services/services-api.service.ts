@@ -8,6 +8,7 @@ import { Observable, of, ReplaySubject, tap, catchError, share, filter, switchMa
 import { IBackendInfo } from '@interfaces/websocket.interface';
 import { Acceleration, AccelerationHistoryParams } from '@interfaces/node-api.interface';
 import { AccelerationStats } from '@components/acceleration/acceleration-stats/acceleration-stats.component';
+import { SimpleProof } from '@components/simpleproof-widget/simpleproof-widget.component';
 
 export interface IUser {
   username: string;
@@ -53,7 +54,7 @@ export class ServicesApiServices {
     if (this.stateService.env.GIT_COMMIT_HASH_MEMPOOL_SPACE) {
       this.getServicesBackendInfo$().subscribe(version => {
         this.stateService.servicesBackendInfo$.next(version);
-      })
+      });
     }
 
     this.getUserInfo$().subscribe();
@@ -81,7 +82,7 @@ export class ServicesApiServices {
         return of(null);
       }),
       share(),
-    )
+    );
   }
 
   /**
@@ -134,20 +135,20 @@ export class ServicesApiServices {
     return this.httpClient.post<any>(`${this.stateService.env.SERVICES_API}/accelerator/accelerate`, { txInput: txInput, userBid: userBid});
   }
 
-  accelerateWithCashApp$(txInput: string, token: string, cashtag: string, referenceId: string, userApprovedUSD: number) {
-    return this.httpClient.post<any>(`${this.stateService.env.SERVICES_API}/accelerator/accelerate/cashapp`, { txInput: txInput, token: token, cashtag: cashtag, referenceId: referenceId, userApprovedUSD: userApprovedUSD });
+  accelerateWithCashApp$(txInput: string, token: string, cashtag: string, referenceId: string, userApprovedUSD: number, partnerCode: string | undefined) {
+    return this.httpClient.post<any>(`${this.stateService.env.SERVICES_API}/accelerator/accelerate/cashapp`, { txInput: txInput, token: token, cashtag: cashtag, referenceId: referenceId, userApprovedUSD: userApprovedUSD, partnerCode: partnerCode  });
   }
 
-  accelerateWithApplePay$(txInput: string, token: string, cardTag: string, referenceId: string, userApprovedUSD: number) {
-    return this.httpClient.post<any>(`${this.stateService.env.SERVICES_API}/accelerator/accelerate/applePay`, { txInput: txInput, cardTag: cardTag, token: token, referenceId: referenceId, userApprovedUSD: userApprovedUSD });
+  accelerateWithApplePay$(txInput: string, token: string, cardTag: string, referenceId: string, userApprovedUSD: number, partnerCode: string | undefined) {
+    return this.httpClient.post<any>(`${this.stateService.env.SERVICES_API}/accelerator/accelerate/applePay`, { txInput: txInput, cardTag: cardTag, token: token, referenceId: referenceId, userApprovedUSD: userApprovedUSD, partnerCode: partnerCode  });
   }
 
-  accelerateWithGooglePay$(txInput: string, token: string, verificationToken: string, cardTag: string, referenceId: string, userApprovedUSD: number, userChallenged: boolean) {
-    return this.httpClient.post<any>(`${this.stateService.env.SERVICES_API}/accelerator/accelerate/googlePay`, { txInput: txInput, cardTag: cardTag, token: token, verificationToken: verificationToken, referenceId: referenceId, userApprovedUSD: userApprovedUSD, userChallenged: userChallenged });
+  accelerateWithGooglePay$(txInput: string, token: string, verificationToken: string, cardTag: string, referenceId: string, userApprovedUSD: number, userChallenged: boolean, partnerCode: string | undefined) {
+    return this.httpClient.post<any>(`${this.stateService.env.SERVICES_API}/accelerator/accelerate/googlePay`, { txInput: txInput, cardTag: cardTag, token: token, verificationToken: verificationToken, referenceId: referenceId, userApprovedUSD: userApprovedUSD, userChallenged: userChallenged, partnerCode: partnerCode });
   }
 
-  accelerateWithCardOnFile$(txInput: string, token: string, verificationToken: string, referenceId: string, userApprovedUSD: number, userChallenged: boolean) {
-    return this.httpClient.post<any>(`${this.stateService.env.SERVICES_API}/accelerator/accelerate/cardOnFile`, { txInput: txInput, token: token, verificationToken: verificationToken, referenceId: referenceId, userApprovedUSD: userApprovedUSD, userChallenged: userChallenged });
+  accelerateWithCardOnFile$(txInput: string, token: string, verificationToken: string, referenceId: string, userApprovedUSD: number, userChallenged: boolean, partnerCode: string | undefined) {
+    return this.httpClient.post<any>(`${this.stateService.env.SERVICES_API}/accelerator/accelerate/cardOnFile`, { txInput: txInput, token: token, verificationToken: verificationToken, referenceId: referenceId, userApprovedUSD: userApprovedUSD, userChallenged: userChallenged, partnerCode: partnerCode  });
   }
 
   getAccelerations$(): Observable<Acceleration[]> {
@@ -160,6 +161,10 @@ export class ServicesApiServices {
 
   getAccelerationHistory$(params: AccelerationHistoryParams): Observable<Acceleration[]> {
     return this.httpClient.get<Acceleration[]>(`${this.stateService.env.SERVICES_API}/accelerator/accelerations/history`, { params: { ...params } });
+  }
+
+  getAccelerationDataForTxid$(txid: string) {
+    return this.httpClient.get<Acceleration>(`${this.stateService.env.SERVICES_API}/accelerator/accelerations/${txid}`);
   }
 
   getAllAccelerationHistory$(params: AccelerationHistoryParams, limit?: number, findTxid?: string): Observable<Acceleration[]> {
@@ -206,12 +211,13 @@ export class ServicesApiServices {
     return this.httpClient.get<{txid: string}>(`${this.stateService.env.SERVICES_API}/testnet4/faucet/request?address=${address}&sats=${sats}`, { responseType: 'json' });
   }
 
-  generateBTCPayAcceleratorInvoice$(txid: string, sats: number): Observable<any> {
+  generateBTCPayAcceleratorInvoice$(txid: string, maxBidBoost: number, partnerCode: string | undefined): Observable<any> {
     const params = {
-      product: txid,
-      amount: sats,
+      txid: txid,
+      maxBidBoost: maxBidBoost,
+      partnerCode: partnerCode
     };
-    return this.httpClient.post<any>(`${this.stateService.env.SERVICES_API}/payments/bitcoin`, params);
+    return this.httpClient.post<any>(`${this.stateService.env.SERVICES_API}/accelerator/invoice`, params);
   }
 
   retrieveInvoice$(invoiceId: string): Observable<any[]> {
@@ -220,5 +226,11 @@ export class ServicesApiServices {
 
   getPaymentStatus$(orderId: string): Observable<any> {
     return this.httpClient.get<any>(`${this.stateService.env.SERVICES_API}/payments/bitcoin/check?order_id=${orderId}`, { observe: 'response' });
+  }
+
+  getSimpleProofs$(key: string): Observable<Record<string, SimpleProof>> {
+    // Need to use relative path here to avoid CORS errors, since this won't be used from mempool.space website
+    const pathname = new URL(this.stateService.env.SERVICES_API + '/sp/verified').pathname;
+    return this.httpClient.get<Record<string, SimpleProof>>(`${pathname}/${key}`);
   }
 }

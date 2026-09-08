@@ -25,6 +25,7 @@ import { StateService } from '@app/services/state.service';
       z-index: 99;
     }
   `],
+  standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NodesNetworksChartComponent implements OnInit, OnChanges {
@@ -130,7 +131,7 @@ export class NodesNetworksChartComponent implements OnInit, OnChanges {
           color: 'grey',
           fontSize: 15
         },
-        text: $localize`Indexing in progress`,
+        text: $localize`:@@af1176facd00a0580509fb2900ab0cf7f9b39ae7:Indexing in progress`,
         left: 'center',
         top: 'center',
       };
@@ -299,7 +300,7 @@ export class NodesNetworksChartComponent implements OnInit, OnChanges {
             name: $localize`Darknet Only (Tor, I2P, cjdns)`,
             inactiveColor: 'rgb(110, 112, 121)',
             textStyle: {
-              color: 'white',
+              color: 'var(--fg)',
             },
             icon: 'roundRect',
           },
@@ -307,7 +308,7 @@ export class NodesNetworksChartComponent implements OnInit, OnChanges {
             name: $localize`Clearnet Only (IPv4, IPv6)`,
             inactiveColor: 'rgb(110, 112, 121)',
             textStyle: {
-              color: 'white',
+              color: 'var(--fg)',
             },
             icon: 'roundRect',
           },
@@ -315,7 +316,7 @@ export class NodesNetworksChartComponent implements OnInit, OnChanges {
             name: $localize`Clearnet and Darknet`,
             inactiveColor: 'rgb(110, 112, 121)',
             textStyle: {
-              color: 'white',
+              color: 'var(--fg)',
             },
             icon: 'roundRect',
           },
@@ -323,7 +324,7 @@ export class NodesNetworksChartComponent implements OnInit, OnChanges {
             name: $localize`:@@e5d8bb389c702588877f039d72178f219453a72d:Unknown`,
             inactiveColor: 'rgb(110, 112, 121)',
             textStyle: {
-              color: 'white',
+              color: 'var(--fg)',
             },
             icon: 'roundRect',
           },

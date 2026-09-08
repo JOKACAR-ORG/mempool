@@ -12,7 +12,8 @@ import { TxResult } from '@interfaces/node-api.interface';
 @Component({
   selector: 'app-push-transaction',
   templateUrl: './push-transaction.component.html',
-  styleUrls: ['./push-transaction.component.scss']
+  styleUrls: ['./push-transaction.component.scss'],
+  standalone: false,
 })
 export class PushTransactionComponent implements OnInit {
   pushTxForm: UntypedFormGroup;
@@ -54,7 +55,7 @@ export class PushTransactionComponent implements OnInit {
 
     this.stateService.networkChanged$.subscribe((network) => this.network = network);
 
-    this.seoService.setTitle($localize`:@@meta.title.push-tx:Broadcast Transaction`);
+    this.seoService.setTitle($localize`:@@f13cbfe8cfc955918e9f64466d2cafddb4760d9a:Broadcast Transaction`);
     this.seoService.setDescription($localize`:@@meta.description.push-tx:Broadcast a transaction to the ${this.stateService.network==='liquid'||this.stateService.network==='liquidtestnet'?'Liquid':'Bitcoin'}${seoDescriptionNetwork(this.stateService.network)} network using the transaction's hash.`);
     this.ogService.setManualOgImage('tx-push.jpg');
 
@@ -133,7 +134,7 @@ export class PushTransactionComponent implements OnInit {
         this.isLoadingPackage = false;
 
         this.packageMessage = result['package_msg'];
-        for (let wtxid in result['tx-results']) {
+        for (const wtxid in result['tx-results']) {
           this.results.push(result['tx-results'][wtxid]);
         }
 
@@ -177,7 +178,7 @@ export class PushTransactionComponent implements OnInit {
           return false;
         }
         const rawCheck = this.base64UrlToU8Array(fragmentParams.get('c'));
-        
+
 
         // check checksum
         const hashTx = await crypto.subtle.digest('SHA-256', rawTx);

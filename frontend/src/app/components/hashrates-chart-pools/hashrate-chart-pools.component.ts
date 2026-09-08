@@ -5,7 +5,7 @@ import { delay, map, retryWhen, share, startWith, switchMap, tap } from 'rxjs/op
 import { ApiService } from '@app/services/api.service';
 import { SeoService } from '@app/services/seo.service';
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
-import { chartColors, poolsColor } from '@app/app.constants';
+import { originalChartColors as chartColors, poolsColor } from '@app/app.constants';
 import { StorageService } from '@app/services/storage.service';
 import { MiningService } from '@app/services/mining.service';
 import { download } from '@app/shared/graphs.utils';
@@ -31,6 +31,7 @@ interface Hashrate {
       z-index: 99;
     }
   `],
+  standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HashrateChartPoolsComponent implements OnInit {
@@ -109,7 +110,7 @@ export class HashrateChartPoolsComponent implements OnInit {
               map((response) => {
                 return {
                   blockCount: parseInt(response.headers.get('x-total-count'), 10),
-                }
+                };
               }),
               retryWhen((errors) => errors.pipe(
                 delay(60000)
@@ -173,11 +174,11 @@ export class HashrateChartPoolsComponent implements OnInit {
         name: name,
         inactiveColor: 'rgb(110, 112, 121)',
         textStyle: {
-          color: 'white',
+          color: 'var(--fg)',
         },
         icon: 'roundRect',
         itemStyle: {
-          color: poolsColor[name.replace(/[^a-zA-Z0-9]/g, "").toLowerCase()],
+          color: poolsColor[name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()],
         },
       });
     }
