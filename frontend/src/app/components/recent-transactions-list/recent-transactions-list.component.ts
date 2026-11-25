@@ -65,26 +65,33 @@ export class RecentTransactionsList implements OnInit, OnDestroy {
         return acc;
       }, new Map<string, TransactionStripped>()), // ES6 maps preserve ordering
       map((acc) => Array.from(acc.values()).reverse()), // newest-first for rendering
-      shareReplay(1), // multicast to transactions$ + bufferedCount$
+      shareReplay({ bufferSize: 1, refCount: true }), // multicast to transactions$ + bufferedCount$, release source when unused
     );
 
-    this.transactions$ = combineLatest([accumulated$, this.limit$, this.paused$]).pipe(
-      filter(([, , paused]) => !paused), // stop updating while paused
-      map(([live, limit]) => live.slice(0, limit)), // otherwise update in real time and enforce the limit
+    // while paused, keep the last visible snapshot so limit changes still apply
+    const displayed$ = combineLatest([accumulated$, this.paused$]).pipe(
+      scan((shown, [live, paused]) => (paused ? shown : live), [] as TransactionStripped[]),
     );
 
-    // keep track of how many new txs have arrived since the last pause for the pill button
+    this.transactions$ = combineLatest([displayed$, this.limit$]).pipe(
+      map(([live, limit]) => live.slice(0, limit)),
+    );
+
+    // count new txs since pause by locating the newest tx seen at pause time (the queue is capped, so length alone can't grow)
     this.bufferedCount$ = combineLatest([accumulated$, this.paused$]).pipe(
       scan((state, [live, paused]) => {
         if (!paused) {
-          return { frozen: null as number | null, count: 0 };
+          return { frozen: false, newestTxid: null as string | null, count: 0 };
         }
-        const frozen = state.frozen ?? live.length;
-        return { frozen, count: Math.max(0, live.length - frozen) };
-      }, { frozen: null as number | null, count: 0 }),
+        if (!state.frozen) {
+          return { frozen: true, newestTxid: live[0]?.txid ?? null, count: 0 };
+        }
+        const idx = state.newestTxid === null ? -1 : live.findIndex((tx) => tx.txid === state.newestTxid);
+        return { ...state, count: idx === -1 ? live.length : idx };
+      }, { frozen: false, newestTxid: null as string | null, count: 0 }),
       map((state) => state.count),
       distinctUntilChanged(),
-      shareReplay(1),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
 
     this.currencySubscription = this.stateService.fiatCurrency$.subscribe((fiat) => {
